@@ -1,9 +1,11 @@
-return {
-    focus_indicator = require("awesome-util.widget.focus-indicator"),
-    action_box      = require("awesome-util.widget.action-box"),
-    fuzzy_select    = require("awesome-util.widget.fuzzy-select"),
-    bind            = require("awesome-util.moon.bind"),
-    awful           = require("awesome-util.awful"),
-    --animate         = require("util.animate"),
-    fzy             = require("awesome-util.fzy_lua")
+local ret = {
+    bind   = require("awesomex.moon.bind"),
+    screen = require("awesomex.screen"),
+    widget = require("awesomex.widget"),
+    fzy    = require("awesomex.fzy_lua")
 }
+
+return setmetatable(ret, { __index = function(_, k)
+    rawset(ret, k, require("awful." .. k))
+    return rawget(ret, k)
+end })
