@@ -3,35 +3,42 @@
 --it to the focused_screen property change signal on screen-handler).
 local gears = require("gears")
 local wibox = require("wibox")
-local awful = require("awful")
 local beautiful = require("beautiful")
-local animate = require("util.animate")
 
 
 local focus_indicator = {}
 
 local function new(args)
+    local s = args.screen or args.wibar and args.wibar.screen
     local ret = wibox {
-        border_width = 0, screen = args.screen,
-        height = args.height or 18,
+        border_width = 0, screen = s,
         bg = args.bg or beautiful.bg_urgent, ontop = args.ontop or false,
         visible = false, input_passthrough = true,
-
     }
 
+    ret:geometry(args.wibar and args.wibar:geometry() or
+        { width = args.width or 5, height = args.height or 5,
+            x = args.x or 0, y = args.y or 0 })
 
-    ret._timer = gears.timer {
+
+    local timer = gears.timer {
         timeout = args.timeout or 0.5, single_shot = true,
         callback = function() ret.visible = false end
     }
 
-    local f = (awful.placement.top + awful.placement.maximize_horizontally)
-    f(ret, {})
-
     function ret:show()
-        self._timer:stop()
+        timer:stop()
         self.visible = true
-        self._timer:start()
+        timer:start()
+    end
+
+    function ret:hide()
+        timer:stop()
+        self.visible = false
+    end
+
+    if s then
+        s:connect_signal("focused", function(_) ret:show() end)
     end
 
     return ret
