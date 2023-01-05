@@ -3,7 +3,7 @@ return {
     action_box      = require("awesome-util.widget.action-box"),
     fuzzy_select    = require("awesome-util.widget.fuzzy-select"),
     bind            = require("awesome-util.moon.bind"),
-    screen          = require("awesome-util.screen"),
+    awful           = require("awesome-util.awful"),
     --animate         = require("util.animate"),
     fzy             = require("awesome-util.fzy_lua")
 }

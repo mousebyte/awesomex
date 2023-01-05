@@ -1,6 +1,4 @@
 -- Basically wraps `awful.screen` to add a signal for focused screen changes.
--- To use it, replace all calls into `awful.screen` in your config with a matching
--- call into `awesome-util.screen`.
 -- The signal is automatically emitted when a client on a different screen is focused,
 -- and when a client's screen property changes while it is focused.
 -- example: `screen.connect_signal("focused", function(s) do_stuff(s.index) end)`
@@ -51,4 +49,4 @@ capi.client.connect_signal("property::screen", function(c)
     if capi.client.focus == c then screen.focus(c.screen) end
 end)
 
-return setmetatable(screen, { __index = function(t, k) return awful.screen[k] end })
+return setmetatable(screen, { __index = function(_, k) return rawget(awful.screen, k) end })
