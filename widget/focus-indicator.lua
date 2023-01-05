@@ -1,6 +1,16 @@
 --An indicator that flashes around the edges of the screen to indicate focus.
---To use, call the show() method when the screen focus changes (for example by connecting
---it to the focused_screen property change signal on screen-handler).
+--Create one for each screen and pass the screen's wibar to the constructor.
+--Example:
+--```
+--for s in screen do
+--    s.focus_indicator = util.focus_indicator {
+--        wibar = s.wibar, bg = '#ca45dfaa'
+--    }
+--end
+--```
+--
+--You can also pass the size and position manually with width, height, x, and y arguments.
+
 local gears = require("gears")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
