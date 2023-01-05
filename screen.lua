@@ -23,7 +23,7 @@ function screen.focus(s)
     s = get_screen(s)
     if s and s ~= awful.screen.focused() then
         awful.screen.focus(s)
-        capi.screen.emit_signal("focused", s)
+        capi.screen.emit_signal("_focused", s)
     end
 end
 
@@ -40,6 +40,8 @@ function screen.focus_relative(offset)
     screen.focus(gmath.cycle(capi.screen.count(),
         awful.screen.focused().index + offset))
 end
+
+capi.screen.connect_signal("_focused", function(s) s:emit_signal("focused") end)
 
 capi.client.connect_signal("focus", function(c)
     screen.focus(c.screen)
