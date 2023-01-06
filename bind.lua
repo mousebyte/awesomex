@@ -1,6 +1,6 @@
-local awful = require("awful")
+local abutton = require("awful.button")
+local akey = require("awful.key")
 local gtable = require("gears.table")
-local naughty = require("naughty")
 local modifiers = {
   ["M"] = "Mod4",
   ["A"] = "Mod1",
@@ -21,102 +21,74 @@ end
 local parse_key
 parse_key = function(s)
   local res = split(s, "-")
-  local mods = { }
-  for _index_0 = 1, #res do
-    local key = res[_index_0]
-    if modifiers[key] then
-      table.insert(mods, modifiers[key])
-    else
-      do
-        local keygroup = key:match("<(%w+)>")
-        if keygroup then
-          return {
-            mods = mods,
-            key = nil,
-            keygroup = keygroup
-          }
-        else
-          return {
-            mods = mods,
-            key = key,
-            keygroup = nil
-          }
-        end
+  return (function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #res do
+      local k = res[_index_0]
+      if modifiers[k] then
+        _accum_0[_len_0] = modifiers[k]
+        _len_0 = _len_0 + 1
       end
     end
-  end
+    return _accum_0
+  end)(), res[#res]
 end
 local parse_btn
 parse_btn = function(s)
   if type(s) == "number" then
-    return {
-      mods = { },
-      btn = s
-    }
+    return { }, s
   end
   local res = split(s, "-")
-  local mods = { }
-  for _index_0 = 1, #res do
-    local key = res[_index_0]
-    if modifiers[key] then
-      table.insert(mods, modifiers[key])
-    else
-      return {
-        mods = mods,
-        btn = tonumber(key)
-      }
+  return (function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for _index_0 = 1, #res do
+      local k = res[_index_0]
+      if modifiers[k] then
+        _accum_0[_len_0] = modifiers[k]
+        _len_0 = _len_0 + 1
+      end
     end
-  end
+    return _accum_0
+  end)(), tonumber(res[#res])
 end
 local mkkey
 mkkey = function(keydef, arg)
-  local mods = { }
-  local key, keygroup
-  do
-    local _obj_0 = parse_key(keydef)
-    mods, key, keygroup = _obj_0.mods, _obj_0.key, _obj_0.keygroup
-  end
-  local cb, desc, group
-  cb, desc, group = arg.cb, arg.desc, arg.group
-  if keygroup then
-    return awful.key({
-      keygroup = keygroup,
-      modifiers = mods,
-      on_press = cb,
-      description = desc,
-      group = group
-    })
-  else
-    return awful.key(mods, key, cb, {
-      description = desc,
-      group = group
-    })
-  end
+  local mods, key = parse_key(keydef)
+  return akey(mods, key, arg.cb, {
+    description = arg.desc,
+    group = arg.group
+  })
 end
 local mkbtn
 mkbtn = function(btndef, arg)
-  local mods, btn
-  do
-    local _obj_0 = parse_btn(btndef)
-    mods, btn = _obj_0.mods, _obj_0.btn
-  end
-  return awful.button(mods, btn, arg)
+  local mods, btn = parse_btn(btndef)
+  return abutton(mods, btn, arg)
 end
 local keytable
 keytable = function(tbl)
-  local res = { }
-  for keydef, arg in pairs(tbl) do
-    res = gtable.join(res, mkkey(keydef, arg))
-  end
-  return res
+  return gtable.join(table.unpack((function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for k, a in pairs(tbl) do
+      _accum_0[_len_0] = mkkey(k, a)
+      _len_0 = _len_0 + 1
+    end
+    return _accum_0
+  end)()))
 end
 local btntable
 btntable = function(tbl)
-  local res = { }
-  for btndef, arg in pairs(tbl) do
-    res = gtable.join(res, mkbtn(btndef, arg))
-  end
-  return res
+  return gtable.join(table.unpack((function()
+    local _accum_0 = { }
+    local _len_0 = 1
+    for b, a in pairs(tbl) do
+      _accum_0[_len_0] = mkbtn(b, a)
+      _len_0 = _len_0 + 1
+    end
+    return _accum_0
+  end)()))
 end
 return {
   mkkey = mkkey,

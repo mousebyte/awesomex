@@ -1,6 +1,6 @@
-awful = require "awful"
+abutton = require "awful.button"
+akey = require "awful.key"
 gtable = require "gears.table"
-naughty = require "naughty"
 
 modifiers =
     "M": "Mod4"
@@ -10,55 +10,30 @@ modifiers =
 
 split = (s, sep)->
     sep = sep or "%s"
-    return [m for m in s\gmatch string.format "([^%s]+)", sep]
+    [m for m in s\gmatch string.format "([^%s]+)", sep]
 
 parse_key = (s)->
     res = split s, "-"
-    mods = {}
-    for key in *res
-        if modifiers[key] then table.insert mods, modifiers[key]
-        else if keygroup = key\match "<(%w+)>" then return :mods, key: nil, :keygroup
-        else return :mods, :key, keygroup: nil
+    [modifiers[k] for k in *res when modifiers[k]], res[#res]
 
 
 parse_btn = (s)->
-    if type(s) == "number" then return mods: {}, btn: s
+    if type(s) == "number" then return {}, s
     res = split s, "-"
-    mods = {}
-    for key in *res
-        if modifiers[key] then table.insert mods, modifiers[key]
-        else return :mods, btn: tonumber key
+    [modifiers[k] for k in *res when modifiers[k]], tonumber res[#res]
 
 
 mkkey = (keydef, arg)->
-    mods = {}
-    {:mods, :key, :keygroup} = parse_key keydef
-    {:cb, :desc, :group} = arg
-    if keygroup
-        return awful.key {
-            keygroup: keygroup
-            modifiers: mods
-            on_press: cb
-            description: desc
-            group: group
-        }
-    else return awful.key(mods, key, cb, { description: desc, group: group })
+    mods, key = parse_key keydef
+    akey mods, key, arg.cb, description: arg.desc, group: arg.group
 
 mkbtn = (btndef, arg)->
-    {:mods, :btn} = parse_btn btndef
-    return awful.button(mods, btn, arg)
+    mods, btn = parse_btn btndef
+    abutton mods, btn, arg
 
 
-keytable = (tbl)->
-    res = {}
-    for keydef, arg in pairs tbl
-        res = gtable.join res, mkkey keydef, arg
-    return res
+keytable = (tbl)-> gtable.join table.unpack [mkkey k, a for k, a in pairs tbl]
 
-btntable = (tbl)->
-    res = {}
-    for btndef, arg in pairs tbl
-        res = gtable.join res, mkbtn btndef, arg
-    return res
+btntable = (tbl)-> gtable.join table.unpack [mkbtn b, a for b, a in pairs tbl]
 
 return {:mkkey, :keytable, :mkbtn, :btntable}
