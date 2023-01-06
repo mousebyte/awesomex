@@ -4,6 +4,8 @@ local capi = {
     client = client
 }
 
+-- Here we replicate the technique used in the original awful module to
+-- prevent circular dependencies.
 local screen
 do
     screen = setmetatable({}, {
@@ -55,7 +57,7 @@ function focus.global_bydirection(dir, c, stacked)
         if target then
             screen.focus(nxt)
             cltbl[target]:emit_signal("request::activate",
-                "client.focus.global_bydirection", { raise = true })
+                "client.focus.global_bydirection", { raise = false })
         end
     end
 end
