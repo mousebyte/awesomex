@@ -1,5 +1,5 @@
 local ret = {
-    bind   = require("awesomex.moon.bind"),
+    bind   = require("awesomex.bind"),
     client = require("awesomex.client"),
     screen = require("awesomex.screen"),
     widget = require("awesomex.widget"),
